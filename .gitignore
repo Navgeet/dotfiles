@@ -1,0 +1,18 @@
+*~
+*#
+*.o
+*.~
+*.elc
+*.backup*
+*.copy*
+*.orig*
+
+# trash in .emacs.d
+.emacs.d/image-dired*
+.emacs.d/elpa*
+.emacs.d/emms*
+.emacs.d/lisp/bongo*
+.emacs.d/lisp/elp.el*
+.emacs.d/savehist
+.emacs.d/themes*
+.emacs.d/url*

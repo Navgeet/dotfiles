@@ -1,0 +1,44 @@
+[core]
+	whitespace = trailing-space,space-before-tab
+[apply]
+	whitespace = fix
+[user]
+	name = Navgeet Agrawal
+	email = navgeet.agrawal@gmail.com
+[github]
+	user = Navgeet
+[help]
+	autocorrect = 20
+[color]
+	ui = auto
+[push]
+	default = matching
+[alias]
+	l = log
+	sl = shortlog -ns --no-merges
+	s = status -sb
+	co = checkout
+	ci = commit
+	cp = cherry-pick
+	fp = format-patch --cover-letter -M -C -o outgoing
+	fpo = format-patch --stdout -M -C
+	am = am -c
+	se = send-email
+	lg = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr %an)%Creset' --abbrev-commit --date=relative
+	tree = log --graph --decorate --pretty=oneline --abbrev-commit
+	name-rev = name-rev --tags
+	r = log --reverse master..HEAD
+	rp = log -p --reverse master..HEAD
+	ri = rebase --interactive
+	rc = rebase --continue
+	ra = rebase --abort
+	rs = rebase --skip
+[merge]
+	conflictstyle = diff3
+	log = 10
+[rerere]
+	enabled = true
+[rebase]
+	autosquash = true
+[diff]
+	submodule = log

@@ -1,0 +1,2 @@
+* dotfiles
+Perhaps the only thing of interest here is my Emacs config.
