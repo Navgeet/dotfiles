@@ -103,14 +103,19 @@ and return an emms-info structure representing it."
 
 ;;; Additional functions
 ;; ------------------------------------------------------------------------------
+(defun nav/emms-names-cache-del (path)
+  (let ((name (gethash path nav/emms-path-to-names-db)))
+    (remhash name nav/emms-names-cache-db)
+    (remhash path nav/emms-path-to-names-db)))
 
-(defun emms-browser-remove-current-node ()
+(defun nav/emms-browser-remove-current-node ()
   "Remove the current node, and empty parents.
 Also remove all tracks under node from cache."
   (interactive)
-  (let ((tracks (emms-browser-tracks-at-point)))
+  (let ((tracks (emms-browser-tracks-at-point)) path)
     (dolist (track tracks)
       (setq path (emms-track-get track 'name))
+      (nav/emms-names-cache-del path)
       (emms-cache-del path)))
   (emms-browser-delete-current-node))
 
@@ -126,7 +131,7 @@ Also remove all tracks under node from cache."
   (emms-next)
   (emms-stop))
 
-(define-key emms-browser-mode-map [(delete)] 'emms-browser-remove-current-node)
+(define-key emms-browser-mode-map [(delete)] 'nav/emms-browser-remove-current-node)
 (define-key dired-mode-map [(insert)] 'emms-add-dired-and-unmark)
 (global-set-key (kbd "<f2>") 'emms-volume-lower)
 (global-set-key (kbd "<f3>") 'emms-volume-raise)
@@ -183,6 +188,9 @@ prefix (artist)(album) to TITLE and insert. Do this for every match."
   (let* ((title (cdr (assoc 'info-title track)))
 	 (path (cdr (assoc 'name track)))
 	 (full-title (nav/emms-check-title title path)))
+    (when (gethash path nav/emms-path-to-names-db)
+      (nav/emms-names-cache-del path)
+      (setq full-title (nav/emms-check-title title path)))
     (puthash full-title path nav/emms-names-cache-db)
     (puthash path full-title nav/emms-path-to-names-db)))
  
