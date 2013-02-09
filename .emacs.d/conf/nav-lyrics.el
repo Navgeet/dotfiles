@@ -166,7 +166,7 @@ FILE should be under the same directory as the music file, or under
 
 (defun nav/get-lyrics-options (artist song)
   "Return a vector with options for lyrics in order of best match"
-  (let* ((str (shell-command-to-string (format "python2 ~/test.py \"%s\" \"%s\""
+  (let* ((str (shell-command-to-string (format "python2 ~/lyricscraper.py \"%s\" \"%s\""
 					       artist
 					       song)))
 	 (str (replace-regexp-in-string "," "" str))
