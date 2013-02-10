@@ -22,6 +22,8 @@
 		    nav-emms
 		    nav-lyrics
 		    nav-elscreen
+		    nav-emms-mode-line
+		    nav-emms-settings
 		    nav-erc)))
   (dolist (file conf-files) (require file)))
 
@@ -138,6 +140,7 @@ inhibit-startup-echo-area-message t)
 (smex-initialize)
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+(setq smex-key-advice-ignore-menu-bar t)
 
 ;; ----
 ;; Rest
