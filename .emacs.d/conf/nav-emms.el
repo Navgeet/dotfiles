@@ -228,9 +228,18 @@ Return the previous point-max before adding."
 		  (level . 3)
 		  (name . ,name)
 		  (data . (,track))))
-	 (emms-browser-current-indent ""))
-    (emms-browser-add-tracks-non-interactive bdata))
-  (unless emms-player-playing-p (emms-start)))
+	 (emms-browser-current-indent "")
+	 (old-pos (emms-browser-add-tracks-non-interactive bdata)))
+  (if (eq last-command-event 12)
+      (with-current-emms-playlist
+	(goto-char old-pos)
+	;; if we're sitting on a group name, move forward
+	(unless (emms-playlist-track-at (point))
+	  (emms-playlist-next))
+	(emms-playlist-select (point))
+	(emms-stop)
+	(emms-start)))
+  (unless emms-player-playing-p (emms-start))))
 
 ;;; Caching of names-cache-db and history ring
 ;; ------------------------------------------------------------------------------
@@ -278,6 +287,10 @@ Return the previous point-max before adding."
 ;; My preference for how to display albums/tracks in browser
 (setq emms-browser-info-album-format "%i%n")
 (setq emms-browser-info-title-format "%i%t")
+
+;; Press C-l to add and play track
+(define-key minibuffer-local-map "\C-l" 'ido-exit-minibuffer)
+
 (setq emms-info-asynchronously nil)
 (add-hook 'emms-track-initialize-functions 'nav/emms-add-track-to-names-cache-db t)
 (add-hook 'kill-emacs-hook 'nav/emms-dbs-and-history-ring-save)
