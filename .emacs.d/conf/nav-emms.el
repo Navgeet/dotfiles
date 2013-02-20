@@ -2,15 +2,16 @@
 ;; EMMS
 ;; ----
 
+;; Set up EMMS
 (require 'emms-setup)
 (emms-standard)
 (emms-default-players)
-(setq emms-repeat-playlist nil)
 
 (require 'emms-browser)
 (require 'emms-info-metaflac)
 (require 'emms-info-mp3info)
 (require 'emms-cache)
+
 (require 'emms-lyrics)
 (emms-lyrics 1)
 (add-to-list 'emms-info-functions 'emms-info-metaflac)
@@ -93,7 +94,7 @@ and return an emms-info structure representing it."
         (let ((default-directory "/"))
           (funcall (emms-player-get player 'start)
                    track)
-	  (setq nav/emms-currently-playing-track track))))))
+	  (run-hook-with-args 'nav/emms-player-started-hook track))))))
 
 (let ((func (lambda ()
 	      (interactive)
@@ -103,6 +104,22 @@ and return an emms-info structure representing it."
 
 ;;; Additional functions
 ;; ------------------------------------------------------------------------------
+(defcustom nav/emms-player-started-hook nil
+  "*Hook run when an EMMS player starts playing."
+  :group 'emms
+  :type 'hook
+  :options '(emms-show))
+
+(add-hook 'nav/emms-player-started-hook (lambda (track)
+					  (setq nav/emms-currently-playing-track track)
+					  (let ((name (gethash
+						       (emms-track-get track 'name)
+						       nav/emms-path-to-names-db))
+						(history-delete-duplicates t))
+					    (add-to-history
+					     'nav/emms-track-history-names
+					     name))))
+
 (defun nav/emms-names-cache-del (path)
   (let ((name (gethash path nav/emms-path-to-names-db)))
     (remhash name nav/emms-names-cache-db)
@@ -139,7 +156,6 @@ Also remove all tracks under node from cache."
 (global-set-key (kbd "<f6>") 'emms-stop-and-next)
 (global-set-key (kbd "<f7>") 'emms-previous)
 (global-set-key (kbd "<f8>") 'emms-next)
-;; (add-hook 'emms-player-started-hook 'nav/add-track-to-history-ring)
 
 ;;; Interactive selection of songs
 ;; ------------------------------------------------------------------------------
@@ -153,7 +169,10 @@ Used to offer completions for songs in minibuffer.")
 			     :test 'equal)
   "A mapping of paths to titles.")
  
-(defvar nav/emms-history-ring ())
+(defvar nav/emms-track-history-names nil
+  "History of songs played, stored as their names.")
+
+(put 'nav/emms-track-history-names 'history-length t)
  
 (defun nav/emms-create-new-title (title path)
   (interactive)
@@ -191,6 +210,9 @@ prefix (artist)(album) to TITLE and insert. Do this for every match."
     (when (gethash path nav/emms-path-to-names-db)
       (nav/emms-names-cache-del path)
       (setq full-title (nav/emms-check-title title path)))
+    (add-to-history
+     'nav/emms-track-history-names
+     full-title)
     (puthash full-title path nav/emms-names-cache-db)
     (puthash path full-title nav/emms-path-to-names-db)))
  
@@ -220,7 +242,8 @@ Return the previous point-max before adding."
 (defun nav/emms-play-interactively ()
   "Select a track from the minibuffer using `completing-read-ido'."
   (interactive)
-  (let* ((song (completing-read-ido "Play: " nav/emms-names-cache-db))
+  (let* ((history-add-new-input nil)
+	 (song (completing-read-ido "Play: " nav/emms-track-history-names))
 	 (path (gethash song nav/emms-names-cache-db))
 	 (track (gethash path emms-cache-db))
 	 (name (emms-browser-make-name `(,path ,track) 'info-title))
@@ -241,6 +264,16 @@ Return the previous point-max before adding."
 	(emms-start)))
   (unless emms-player-playing-p (emms-start))))
 
+(defun nav/populate-track-history-names ()
+  "Populate the nav/emms-track-history-names list."
+  (interactive)
+  (setq nav/emms-track-history-names nil)
+  (maphash (lambda (key value)
+	     ;; (add-to-history 'nav/emms-track-history-names
+	     ;; key))
+	     (setq nav/emms-track-history-names (cons key nav/emms-track-history-names)))
+	     nav/emms-names-cache-db))
+
 ;;; Caching of names-cache-db and history ring
 ;; ------------------------------------------------------------------------------
 
@@ -249,10 +282,10 @@ Return the previous point-max before adding."
   :group 'emms
   :type 'file)
 
-(defun nav/emms-dbs-and-history-ring-save ()
+(defun nav/emms-dbs-and-history-list-save ()
   "Save the names cache to a file."
   (interactive)
-  (message "Saving emms names cache and history-ring...")
+  (message "Saving emms names cache and history-list...")
   (set-buffer (get-buffer-create " emms-names-cache "))
   (erase-buffer)
   (insert
@@ -268,7 +301,7 @@ Return the previous point-max before adding."
 		      "(puthash %S '%S nav/emms-path-to-names-db)\n" k v)))
 	   nav/emms-path-to-names-db)
   (insert (format
-	   "(setq nav/emms-history-ring '%S)\n" nav/emms-history-ring))
+	   "(setq nav/emms-track-history-names '%S)\n" nav/emms-track-history-names))
   (when (fboundp 'set-buffer-file-coding-system)
     (set-buffer-file-coding-system emms-cache-file-coding-system))
   (unless (file-directory-p (file-name-directory emms-names-cache-file))
@@ -277,7 +310,7 @@ Return the previous point-max before adding."
   (kill-buffer (current-buffer))
   (message "Saving emms names cache...done"))
 
-(defun nav/emms-dbs-and-history-ring-restore ()
+(defun nav/emms-dbs-and-history-list-restore ()
   "Restore the names cache from a file."
   (interactive)
   (load emms-names-cache-file t nil t))
@@ -293,8 +326,8 @@ Return the previous point-max before adding."
 
 (setq emms-info-asynchronously nil)
 (add-hook 'emms-track-initialize-functions 'nav/emms-add-track-to-names-cache-db t)
-(add-hook 'kill-emacs-hook 'nav/emms-dbs-and-history-ring-save)
-(nav/emms-dbs-and-history-ring-restore)
+(add-hook 'kill-emacs-hook 'nav/emms-dbs-and-history-list-save)
+(nav/emms-dbs-and-history-list-restore)
 (global-set-key (kbd "M-`") 'nav/emms-play-interactively)
 (setq emms-browser-alpha-sort-function 'emms-browser-sort-by-year-or-name)
 
