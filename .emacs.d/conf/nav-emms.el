@@ -116,9 +116,9 @@ and return an emms-info structure representing it."
 						       (emms-track-get track 'name)
 						       nav/emms-path-to-names-db))
 						(history-delete-duplicates t))
-					    (add-to-history
-					     'nav/emms-track-history-names
-					     name))))
+					    (later-do 'add-to-history
+						      'nav/emms-track-history-names
+						      name))))
 
 (defun nav/emms-names-cache-del (path)
   (let ((name (gethash path nav/emms-path-to-names-db)))
@@ -269,10 +269,8 @@ Return the previous point-max before adding."
   (interactive)
   (setq nav/emms-track-history-names nil)
   (maphash (lambda (key value)
-	     ;; (add-to-history 'nav/emms-track-history-names
-	     ;; key))
 	     (setq nav/emms-track-history-names (cons key nav/emms-track-history-names)))
-	     nav/emms-names-cache-db))
+	   nav/emms-names-cache-db))
 
 ;;; Caching of names-cache-db and history ring
 ;; ------------------------------------------------------------------------------
