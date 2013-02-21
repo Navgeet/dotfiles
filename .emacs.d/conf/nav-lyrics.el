@@ -91,7 +91,7 @@ display."
 	      (add-text-properties (point) (progn
 					     (end-of-line)
 					     (point))
-				   '(face font-lock-warning-face))))))
+				   '(face warning))))))
       (mapc (lambda (win)
 	      (unless (eq (selected-window) win)
 		(with-selected-window win
@@ -151,6 +151,9 @@ FILE should be under the same directory as the music file, or under
 (defvar nav/emms-lyrics-temp-marker nil
   "Temporary marker for the current lrc file.")
 
+(defvar nav/emms-lyrics-current-vec nil
+  "Vector used to cache lyric options.")
+
 (defvar nav/emms-lyrics-marker-db (make-hash-table
 			     :test 'equal)
   "Mapping of lyric file paths to their markers.")
@@ -201,12 +204,15 @@ e.g., (emms-lyrics-find-lyric \"abc.lrc\")"
           (concat dir file)))
     (if (file-exists-p lyric-under-curr-dir)
 	(progn
+	  (setq nav/emms-lyrics-current-vec nil)
 	  (setq nav/emms-lyrics-current-lrc-file lyric-under-curr-dir)
 	  (setq nav/emms-lyrics-temp-marker nil)
 	  lyric-under-curr-dir)
       (let* ((artist (emms-track-get track 'info-artist))
 	     (song (emms-track-get track 'info-title))
-	     (first-url (aref (aref (nav/get-lyrics-options artist song) 0) 2)))
+	     (vec (nav/get-lyrics-options artist song))
+	     (first-url (aref (aref vec 0) 2)))
+	(setq nav/emms-lyrics-current-vec vec)
 	(unless (file-exists-p dir)
 	  (make-directory dir))
 	(url-copy-file first-url lyric-under-curr-dir t t)
@@ -220,9 +226,6 @@ e.g., (emms-lyrics-find-lyric \"abc.lrc\")"
   (interactive)
   (let* ((file nav/emms-lyrics-current-lrc-file)
 	 (marker (gethash file nav/emms-lyrics-marker-db))
-	 (track nav/emms-currently-playing-track)
-	 (artist (emms-track-get track 'info-artist))
-	 (song (emms-track-get track 'info-title))
 	 url)
     (when nav/emms-lyrics-temp-marker
       (setq marker nav/emms-lyrics-temp-marker))
@@ -231,7 +234,16 @@ e.g., (emms-lyrics-find-lyric \"abc.lrc\")"
      ((and (> marker 0) (< arg 0)) (setq marker (1- marker)))
      (t (setq marker 0)))
     (setq nav/emms-lyrics-temp-marker marker)
-    (setq url (aref (aref (nav/get-lyrics-options artist song) marker) 2))
+    ;; get the url
+    (if nav/emms-lyrics-current-vec
+	(setq url (aref (aref nav/emms-lyrics-current-vec marker) 2))
+      (let* ((track nav/emms-currently-playing-track)
+	     (artist (emms-track-get track 'info-artist))
+	     (song (emms-track-get track 'info-title))
+	     (vec (nav/get-lyrics-options artist song)))
+	(setq url (aref (aref vec marker) 2))
+	(setq nav/emms-lyrics-current-vec vec)))
+
     (url-copy-file url "~/.current_temp_lrc" t t)
     (when emms-lyrics-alist
       (mapc #'emms-cancel-timer emms-lyrics-timers))
