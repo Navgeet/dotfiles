@@ -42,3 +42,5 @@
 	autosquash = true
 [diff]
 	submodule = log
+[credential]
+	helper = cache --timeout=3600
