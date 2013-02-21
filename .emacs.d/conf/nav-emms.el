@@ -243,7 +243,7 @@ Return the previous point-max before adding."
   "Select a track from the minibuffer using `completing-read-ido'."
   (interactive)
   (let* ((history-add-new-input nil)
-	 (song (completing-read-ido "Play: " nav/emms-track-history-names))
+	 (song (ido-completing-read "Play: " nav/emms-track-history-names))
 	 (path (gethash song nav/emms-names-cache-db))
 	 (track (gethash path emms-cache-db))
 	 (name (emms-browser-make-name `(,path ,track) 'info-title))
