@@ -121,16 +121,20 @@ and return an emms-info structure representing it."
 					  (setq nav/emms-currently-playing-track track)
 					  (let ((name (gethash
 						       (emms-track-get track 'name)
-						       nav/emms-path-to-names-db))
-						(history-delete-duplicates t))
-					    (later-do 'add-to-history
-						      'nav/emms-track-history-names
-						      name))))
+						       nav/emms-path-to-names-db)))
+					    (later-do
+					     (lambda (name)
+					       (let ((history-delete-duplicates t))
+						 (add-to-history
+						  'nav/emms-track-history-names
+						  name)))
+					     name))))
 
 (defun nav/emms-names-cache-del (path)
   (let ((name (gethash path nav/emms-path-to-names-db)))
     (remhash name nav/emms-names-cache-db)
-    (remhash path nav/emms-path-to-names-db)))
+    (remhash path nav/emms-path-to-names-db)
+    (setq nav/emms-track-history-names (delete name nav/emms-track-history-names))))
 
 (defun nav/emms-browser-remove-current-node ()
   "Remove the current node, and empty parents.
@@ -180,46 +184,50 @@ Used to offer completions for songs in minibuffer.")
   "History of songs played, stored as their names.")
 
 (put 'nav/emms-track-history-names 'history-length t)
- 
+
 (defun nav/emms-create-new-title (title path)
   (interactive)
   (let* ((list (gethash path emms-cache-db))
 	 (artist (cdr (assoc 'info-artist list)))
 	 (album (cdr (assoc 'info-album list))))
     (format "(%s)(%s) %s" artist album title)))
- 
+
 (defun nav/emms-path-to-names-db-rectify (new-title path)
   (puthash path new-title nav/emms-path-to-names-db))
  
 (defun nav/emms-check-title (title path)
   "Check nav/emms-names-cache-db for same TITLE (case insensitive). If found,
 prefix (artist)(album) to TITLE and insert. Do this for every match."
-  (let ((found-matches-p nil))
-    (maphash (lambda (key value)
-	       (if (string= (downcase key) (downcase title))
-		   (let ((new-title (nav/emms-create-new-title key value)))
-		     (progn (puthash new-title
-				     value
-				     nav/emms-names-cache-db)
-			    (remhash key nav/emms-names-cache-db)
-			    (setq found-matches-p t)
-			    (nav/emms-path-to-names-db-rectify new-title value)))))
-	     nav/emms-names-cache-db)
-    (if found-matches-p
-	(nav/emms-create-new-title title path)
+  (let ((pos 0)
+	(list nav/emms-track-history-names))
+    (while (and list (not (string= (downcase (car list)) (downcase title))))
+      (setq list (cdr list))
+      (setq pos (1+ pos)))
+    (if list
+	(let* ((other-path (gethash (car list) nav/emms-names-cache-db))
+	       (new-title (nav/emms-create-new-title
+			   (car list)
+			   other-path)))
+	  (setcar (nthcdr pos nav/emms-track-history-names) new-title)
+	  (remhash (car list) nav/emms-names-cache-db)
+	  (puthash new-title other-path nav/emms-names-cache-db)
+	  (nav/emms-path-to-names-db-rectify new-title other-path)
+	  (nav/emms-create-new-title title path))
       title)))
- 
+
 (defun nav/emms-add-track-to-names-cache-db (track)
   "Update the names db when a track is added to browser."
   (let* ((title (cdr (assoc 'info-title track)))
 	 (path (cdr (assoc 'name track)))
 	 (full-title (nav/emms-check-title title path)))
+    ;; track to be added has been added already, update it
     (when (gethash path nav/emms-path-to-names-db)
       (nav/emms-names-cache-del path)
       (setq full-title (nav/emms-check-title title path)))
-    (add-to-history
+
+    (add-to-list
      'nav/emms-track-history-names
-     full-title)
+     full-title t)
     (puthash full-title path nav/emms-names-cache-db)
     (puthash path full-title nav/emms-path-to-names-db)))
  
