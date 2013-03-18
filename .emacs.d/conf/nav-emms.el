@@ -12,6 +12,7 @@
 (require 'emms-info-mp3info)
 (require 'emms-cache)
 
+(require 'nav-emms-cache)
 (require 'emms-lyrics)
 (emms-lyrics 1)
 (add-to-list 'emms-info-functions 'emms-info-metaflac)
@@ -101,6 +102,12 @@ and return an emms-info structure representing it."
 	      (setq nav/emms-currently-playing-track nil))))
   (add-hook 'emms-player-stopped-hook func)
   (add-hook 'emms-player-finished-hook func))
+
+;;; Caching
+(defcustom emms-names-cache-file (concat (file-name-as-directory emms-directory) "names_cache")
+  "A file used to store cached file information over sessions."
+  :group 'emms
+  :type 'file)
 
 ;;; Additional functions
 ;; ------------------------------------------------------------------------------
@@ -272,47 +279,6 @@ Return the previous point-max before adding."
 	     (setq nav/emms-track-history-names (cons key nav/emms-track-history-names)))
 	   nav/emms-names-cache-db))
 
-;;; Caching of names-cache-db and history ring
-;; ------------------------------------------------------------------------------
-
-(defcustom emms-names-cache-file (concat (file-name-as-directory emms-directory) "names_cache")
-  "A file used to store cached file information over sessions."
-  :group 'emms
-  :type 'file)
-
-(defun nav/emms-dbs-and-history-list-save ()
-  "Save the names cache to a file."
-  (interactive)
-  (message "Saving emms names cache and history-list...")
-  (set-buffer (get-buffer-create " emms-names-cache "))
-  (erase-buffer)
-  (insert
-   (concat ";;; .emms-names-cache -*- mode: emacs-lisp; coding: "
-	   (symbol-name emms-cache-file-coding-system)
-	   "; -*-\n"))
-  (maphash (lambda (k v)
-	     (insert (format
-		      "(puthash %S '%S nav/emms-names-cache-db)\n" k v)))
-	   nav/emms-names-cache-db)
-  (maphash (lambda (k v)
-	     (insert (format
-		      "(puthash %S '%S nav/emms-path-to-names-db)\n" k v)))
-	   nav/emms-path-to-names-db)
-  (insert (format
-	   "(setq nav/emms-track-history-names '%S)\n" nav/emms-track-history-names))
-  (when (fboundp 'set-buffer-file-coding-system)
-    (set-buffer-file-coding-system emms-cache-file-coding-system))
-  (unless (file-directory-p (file-name-directory emms-names-cache-file))
-    (make-directory (file-name-directory emms-names-cache-file)))
-  (write-region (point-min) (point-max) emms-names-cache-file)
-  (kill-buffer (current-buffer))
-  (message "Saving emms names cache...done"))
-
-(defun nav/emms-dbs-and-history-list-restore ()
-  "Restore the names cache from a file."
-  (interactive)
-  (load emms-names-cache-file t nil t))
-
 ;;; Settings
 ;; ------------------------------------------------------------------------------
 ;; My preference for how to display albums/tracks in browser
@@ -324,8 +290,13 @@ Return the previous point-max before adding."
 
 (setq emms-info-asynchronously nil)
 (add-hook 'emms-track-initialize-functions 'nav/emms-add-track-to-names-cache-db t)
-(add-hook 'kill-emacs-hook 'nav/emms-dbs-and-history-list-save)
-(nav/emms-dbs-and-history-list-restore)
+(add-hook 'kill-emacs-hook (lambda ()
+			     (interactive)
+			     (nav/emms-cache-save emms-names-cache-file
+						  'nav/emms-names-cache-db
+						  'nav/emms-path-to-names-db
+						  'nav/emms-track-history-names)))
+(nav/emms-cache-restore emms-names-cache-file)
 (global-set-key (kbd "M-`") 'nav/emms-play-interactively)
 (setq emms-browser-alpha-sort-function 'emms-browser-sort-by-year-or-name)
 
