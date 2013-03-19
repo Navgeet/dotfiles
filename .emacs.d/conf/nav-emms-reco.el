@@ -70,6 +70,8 @@
   (let* ((track (gethash origfile emms-cache-db))
 	 (artist (emms-track-get track 'info-artist))
 	 (title (emms-track-get track 'info-title))
+	 (url-request-extra-headers
+	  '(("User-Agent" . "Wget/1.14 (linux-gnu)")))
 	 (url (nav/url-quote-str-utf8 (format
 				       "http://ws.audioscrobbler.com/2.0/?method=track.getSimilar&api_key=%s&track=%s&artist=%s&autocorrect=1"
 				  nav/emms-reco-api-key
