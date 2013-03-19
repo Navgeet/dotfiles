@@ -21,6 +21,7 @@
 (let ((conf-files '(nav-packages
 		    nav-emms
 		    nav-lyrics
+		    nav-emms-reco
 		    nav-elscreen
 		    nav-emms-mode-line
 		    nav-emms-settings
