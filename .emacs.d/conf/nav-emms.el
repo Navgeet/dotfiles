@@ -131,6 +131,7 @@ and return an emms-info structure representing it."
 					     name))))
 
 (add-hook 'nav/emms-player-started-hook 'nav/emms-reco-similiar-tracks-update)
+(add-hook 'nav/emms-player-started-hook 'nav/emms-reco-top-tracks-update)
 
 (defun nav/emms-names-cache-del (path)
   (let ((name (gethash path nav/emms-path-to-names-db)))

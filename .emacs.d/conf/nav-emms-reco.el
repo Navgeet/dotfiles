@@ -4,6 +4,7 @@
 (defvar nav/emms-reco-artist-face 'rainbow-delimiters-depth-5-face)
 (defvar nav/emms-reco-track-face 'widget-documentation)
 (defvar nav/emms-reco-similiar-tracks-buffer-name " *EMMS Similiar Tracks*")
+(defvar nav/emms-reco-similiar-tracks-buffer nil)
 (defvar nav/emms-reco-similiar-tracks-file nil)
 
 (defun nav/url-escape-point (c)
@@ -97,6 +98,70 @@
   (interactive)
   (let ((file (emms-track-get track 'name)))
     (nav/emms-reco-similiar-tracks-read-file file)))
+
+;;; Top tracks
+;; ----------------------------------------------------------------------------
+;; This section is mostly duplicate code
+
+(defvar nav/emms-reco-top-tracks-buffer nil)
+(defvar nav/emms-reco-top-tracks-buffer-name " *EMMS Top Tracks*")
+(defvar nav/emms-reco-top-tracks-buffer nil)
+
+(defun nav/emms-reco-top-tracks-update (track)
+  (interactive)
+  (let ((artist (emms-track-get track 'info-artist)))
+    (nav/emms-reco-top-tracks-read-file artist)))
+
+(defun nav/emms-reco-top-tracks-read-file (artist)
+  (let* ((recofile (concat "~/.top_tracks/" artist)))
+    (if (file-exists-p recofile)
+	(with-current-buffer nav/emms-reco-top-tracks-buffer
+	  (let ((inhibit-read-only t))
+	    (insert-file-contents recofile)))
+      (nav/emms-reco-top-tracks-write-file artist recofile))))
+
+(defun nav/emms-reco-top-tracks-write-file (artist recofile)
+  (let ((url-request-extra-headers
+	 '(("User-Agent" . "Wget/1.14 (linux-gnu)")))
+	(url (nav/url-quote-str-utf8 (format
+				      "http://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=%s&api_key=%s&autocorrect=1"
+				      artist
+				      nav/emms-reco-api-key))))
+    (setq nav/emms-reco-top-tracks-args (list recofile artist))
+    (setq nav/emms-reco-temp-buffer-2 (url-retrieve
+				       url
+				       (lambda (&rest _)
+					 (nav/emms-reco-top-tracks-retrieve-url _))))))
+
+(defun nav/emms-reco-top-tracks-retrieve-url (&rest _)
+  (with-current-buffer nav/emms-reco-temp-buffer-2
+    (forward-line 16)
+    (let ((parsed (libxml-parse-xml-region (point) (point-max))))
+      (nav/emms-reco-top-tracks-write-to-buffer (nthcdr 2 (caddr parsed)))))
+  (with-current-buffer nav/emms-reco-top-tracks-buffer
+    (write-region nil nil (car nav/emms-reco-top-tracks-args))))
+
+(defun nav/emms-reco-top-tracks-write-to-buffer (parsed-track-list)
+  (with-current-buffer nav/emms-reco-top-tracks-buffer
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (goto-char (point-min))
+      (mapc (lambda (x)
+	      (let ((track (caddr (assoc 'name x)))
+		    (artist (cadr nav/emms-reco-top-tracks-args)))
+		(insert (propertize (concat track "\n")
+				    'face nav/emms-reco-track-face
+				    'artist artist
+				    'track track))))
+	    parsed-track-list)
+      (goto-char (point-min)))))
+
+(defun nav/emms-reco-top-tracks-create-buffer ()
+  (setq nav/emms-reco-top-tracks-buffer (get-buffer-create nav/emms-reco-top-tracks-buffer-name))
+  (set-buffer nav/emms-reco-top-tracks-buffer)
+  (hl-line-mode 1)
+  (enriched-mode 1)
+  (setq buffer-read-only t))
 
 (provide 'nav-emms-reco)
 ;;; nav-emms-reco.el ends here

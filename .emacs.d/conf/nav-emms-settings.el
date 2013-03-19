@@ -4,6 +4,7 @@
     (nav/emms-mode-line 1)))
 
 (nav/emms-reco-similiar-tracks-create-buffer)
+(nav/emms-reco-top-tracks-create-buffer)
 
 (provide 'nav-emms-settings)
 ;; nav-emms-settings.el ends here
