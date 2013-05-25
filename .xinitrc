@@ -11,6 +11,11 @@ if [ -d /etc/X11/xinit/xinitrc.d ]; then
   unset f
 fi
 export LC_ALL=en_US.UTF-8
+
+if [ -s ~/.Xmodmap ]; then
+    xmodmap ~/.Xmodmap
+fi
+
 # exec gnome-session
 # exec startkde
 # exec startxfce4
