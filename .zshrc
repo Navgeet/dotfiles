@@ -33,6 +33,7 @@ autoload -U colors && colors
 export PS1="%{$fg[green]%}%n%{$reset_color%} %{$fg[blue]%}%~ %#%{$reset_color%}"
 
 alias ls='ls -F --color=always'
+alias grep='grep --color=auto'
 alias cp='cp -i'
 alias mv='mv -i'
 
@@ -67,4 +68,5 @@ PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 export http_proxy=http://10.3.100.212:8080/ 
 export ftp_proxy=http://10.3.100.212:8080/ 
 export https_proxy=http://10.3.100.212:8080/ 
+export _JAVA_AWT_WM_NONREPARENTING=1
 eval `dircolors /etc/DIR_COLORS`
