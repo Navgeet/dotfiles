@@ -233,6 +233,18 @@ root.buttons(awful.util.table.join(
 ))
 -- }}}
 
+function nextwindow ()
+   awful.client.focus.byidx(1)
+   if client.focus then client.focus:raise()
+   end
+end
+
+function prevwindow ()
+   awful.client.focus.byidx(-1)
+   if client.focus then client.focus:raise()
+   end
+end
+
 -- {{{ Key bindings
 globalkeys = awful.util.table.join(
    -- My personal bindings start here
@@ -244,16 +256,10 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
 
-    awful.key({ modkey,           }, "j",
-        function ()
-            awful.client.focus.byidx( 1)
-            if client.focus then client.focus:raise() end
-        end),
-    awful.key({ modkey,           }, "k",
-        function ()
-            awful.client.focus.byidx(-1)
-            if client.focus then client.focus:raise() end
-        end),
+    awful.key({ modkey,           }, "j", prevwindow),
+    awful.key({ modkey,           }, "k", nextwindow),
+    awful.key({ modkey,           }, "Up", prevwindow),
+    awful.key({ modkey,           }, "Down", nextwindow),
     awful.key({ modkey,           }, "w", function () mymainmenu:show({keygrabber=true}) end),
 
     -- Layout manipulation
