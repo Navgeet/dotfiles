@@ -1,2 +1,2 @@
 * dotfiles
-Perhaps the only thing of interest here is my Emacs config.
+Nothing fancy here. You may rather want to look at my [[https://github.com/Navgeet/.emacs.d][.emacs.d]].
