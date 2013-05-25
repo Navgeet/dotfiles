@@ -184,7 +184,7 @@ for s = 1, screen.count() do
 --    memwidget:set_gradient_colors({ "#AECF96", "#88A175", "#FF5656" })
 --    -- Register widget
 --    vicious.register(memwidget, vicious.widgets.mem, "$1", 13)
--- 
+--
 --    -- Initialize widget
 --    cpuwidget = awful.widget.progressbar()
 --    -- Progressbar properties
@@ -290,10 +290,10 @@ globalkeys = awful.util.table.join(
     -- awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
     -- Dmenu
     awful.key({ modkey },            "r",     function ()
-                 awful.util.spawn("dmenu_run -i -p 'Run command:' -nb '" .. 
-                                  beautiful.bg_normal .. "' -nf '" .. beautiful.fg_normal .. 
-                                  "' -sb '" .. beautiful.bg_focus .. 
-                                  "' -sf '" .. beautiful.fg_focus .. "'") 
+                 awful.util.spawn("dmenu_run -i -p 'Run command:' -nb '" ..
+                                  beautiful.bg_normal .. "' -nf '" .. beautiful.fg_normal ..
+                                  "' -sb '" .. beautiful.bg_focus ..
+                                  "' -sf '" .. beautiful.fg_focus .. "'")
                                               end),
 
     awful.key({ modkey }, "x",
@@ -411,8 +411,8 @@ awful.rules.rules = {
                properties = { floating = true } },
     { rule = { class = "Wine" },
                properties = { floating = true, tag = tags[1][9] } },
-	       
-     
+
+
 }
 -- }}}
 
