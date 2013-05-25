@@ -197,8 +197,6 @@ for s = 1, screen.count() do
 --    cpuwidget:set_gradient_colors({ "#AECF96", "#88A175", "#FF5656" })
 --    -- Register widget
 --    vicious.register(memwidget, vicious.widgets.cpu, "$1", 13)
-    lyricbox = widget({ type = "textbox" })
-    lyricbox.text = '<span color="white">Sacrebleu, I have seen a ghost!</span> '
     separator = widget({ type = "textbox" })
     separator.text = "   "
 
@@ -217,7 +215,6 @@ for s = 1, screen.count() do
   --      memwidget,
   --      cpuwidget,
         s == 1 and mysystray or nil,
-	lyricbox,
 	separator,
         mytasklist[s],
         layout = awful.widget.layout.horizontal.rightleft
