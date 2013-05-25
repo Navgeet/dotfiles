@@ -71,7 +71,7 @@ layouts =
 -- Define a tag table which hold all screen tags.
 tags = {
    names  = { "emacs", "web", "term", "4", 5, 6, 7, "thunar", "server" },
-   layout = { layouts[2], layouts[10], layouts[2], layouts[2], layouts[2],
+   layout = { layouts[1], layouts[10], layouts[2], layouts[2], layouts[2],
               layouts[2], layouts[2], layouts[2], layouts[2]
  }}
 
