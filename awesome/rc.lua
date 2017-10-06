@@ -12,7 +12,7 @@ local naughty = require("naughty")
 local menubar = require("menubar")
 
 -- Load Debian menu entries
-require("debian.menu")
+-- require("debian.menu")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -44,7 +44,7 @@ end
 beautiful.init("/usr/share/awesome/themes/zenburn/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
-terminal = "x-terminal-emulator"
+terminal = "urxvtc"
 editor = os.getenv("EDITOR") or "editor"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -85,7 +85,7 @@ end
 -- Define a tag table which hold all screen tags.
 tags = {
    names  = { "Code", "Web", "Term", 4, 5, 6, 7, "Files", "Media" },
-   layout = { layouts[10], layouts[10], layouts[2], layouts[2], layouts[2],
+   layout = { layouts[1], layouts[10], layouts[2], layouts[2], layouts[2],
               layouts[2], layouts[2], layouts[6], layouts[6]
 }}
 
@@ -106,7 +106,7 @@ myawesomemenu = {
 }
 
 mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
-                                    { "Debian", debian.menu.Debian_menu.Debian },
+                                    -- { "Debian", debian.menu.Debian_menu.Debian },
                                     { "open terminal", terminal }
                                   }
                         })
