@@ -57,3 +57,8 @@
    ;; :defer 4
    :ensure t
    :config  (windmove-default-keybindings))
+
+(add-hook 'smartparens-global-mode-hook
+          (lambda ()
+            (setq smartparens-global-mode-hook nil)
+            (smartparens-global-mode -1)))
