@@ -62,3 +62,18 @@
           (lambda ()
             (setq smartparens-global-mode-hook nil)
             (smartparens-global-mode -1)))
+
+
+;; Make windmove work in Org mode:
+(add-hook 'org-shiftup-final-hook 'windmove-up)
+(add-hook 'org-shiftleft-final-hook 'windmove-left)
+(add-hook 'org-shiftdown-final-hook 'windmove-down)
+(add-hook 'org-shiftright-final-hook 'windmove-right)
+
+(setq go-mode-local-vars-hook '())
+
+
+;; paredit
+;; (keymap-set paredit-mode-map "C-<right>" 'paredit-forward)
+;; (keymap-set paredit-mode-map "C-<left>" 'paredit-backward)
+;; (keymap-set paredit-mode-map "C-<up>" 'paredit-backward-up)

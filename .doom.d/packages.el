@@ -48,3 +48,13 @@
 ;(unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
+
+;; https://github.com/doomemacs/doomemacs/issues/5667#issuecomment-948229579
+(package! gitconfig-mode
+	  :recipe (:host github :repo "magit/git-modes"
+			 :files ("gitconfig-mode.el")))
+(package! gitignore-mode
+	  :recipe (:host github :repo "magit/git-modes"
+			 :files ("gitignore-mode.el")))
+
+(package! map :pin "bb50dba") ;; https://github.com/clojure-emacs/cider/issues/3029

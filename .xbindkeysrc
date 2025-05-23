@@ -36,6 +36,11 @@
 #keystate_numlock = enable
 #keystate_capslock = enable
 #keystate_scrolllock= enable
+"brightnessctl set 10%+"
+XF86MonBrightnessUp
+
+"brightnessctl set 10%-"
+XF86MonBrightnessDown
 
 "playerctl play-pause"
 XF86AudioPlay
@@ -45,6 +50,15 @@ XF86AudioNext
 
 "playerctl previous"
 XF86AudioPrev
+
+"amixer sset Master 10%+"
+XF86AudioRaiseVolume
+
+"amixer sset Master 10%-"
+XF86AudioLowerVolume
+
+"amixer sset Master 0"
+XF86AudioMute
 
 #"xterm -geom 50x20+20+20"
 #   Shift+Mod2+alt + s

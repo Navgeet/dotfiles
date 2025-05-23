@@ -20,5 +20,7 @@ if [ -s ~/.Xresources ]; then
 fi
 
 xbindkeys
-exec awesome
+nm-applet &
+exec /usr/bin/awesome >> ~/.cache/awesome/stdout 2>> ~/.cache/awesome/stderr
+
 # ...or the Window Manager of your choice

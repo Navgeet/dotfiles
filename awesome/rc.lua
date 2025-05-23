@@ -10,6 +10,8 @@ require("awful.autofocus")
 local wibox = require("wibox")
 -- Theme handling library
 local beautiful = require("beautiful")
+-- Wallpaper
+local away = require("away")
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
@@ -49,10 +51,11 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
+-- awesome.themes_path = gears.filesystem.get_configuration_dir()
 beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
-terminal = "termite"
+terminal = "alacritty"
 editor = os.getenv("EDITOR") or "editor"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -65,8 +68,8 @@ modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
-    awful.layout.suit.max,
     awful.layout.suit.tile,
+    awful.layout.suit.max,
     awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
     awful.layout.suit.tile.top,
@@ -121,7 +124,9 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- }}}
 
 -- Keyboard map indicator and switcher
-mykeyboardlayout = awful.widget.keyboardlayout()
+-- mykeyboardlayout = awful.widget.keyboardlayout()
+batteryarc_widget = require("awesome-wm-widgets.batteryarc-widget.batteryarc")
+-- awful.spawn.easy_async_with_shell("nm-applet")
 
 -- {{{ Wibar
 -- Create a textclock widget
@@ -169,14 +174,16 @@ local tasklist_buttons = gears.table.join(
 
 local function set_wallpaper(s)
     -- Wallpaper
-    if beautiful.wallpaper then
-        local wallpaper = beautiful.wallpaper
-        -- If wallpaper is a function, call it with the screen
-        if type(wallpaper) == "function" then
-            wallpaper = wallpaper(s)
-        end
-        gears.wallpaper.maximized(wallpaper, s, true)
-    end
+    -- if beautiful.wallpaper then
+    --     local wallpaper = beautiful.wallpaper
+    --     -- If wallpaper is a function, call it with the screen
+    --     if type(wallpaper) == "function" then
+    --         wallpaper = wallpaper(s)
+    --     end
+    --     gears.wallpaper.maximized(wallpaper, s, true)
+    -- end
+    -- wp = away.wallpaper.get_solowallpaper(s, 'wallhaven', {id='Art', choices = {1, 2, 3, 4}, query = {q='landscape', atleast='1920x1080', sorting='favorites', page=2} })
+    -- wp.update() -- set next wallpaper
 end
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
@@ -228,7 +235,8 @@ awful.screen.connect_for_each_screen(function(s)
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
+            -- mykeyboardlayout,
+            batteryarc_widget(),
             wibox.widget.systray(),
             mytextclock,
             s.mylayoutbox,
@@ -263,6 +271,18 @@ globalkeys = gears.table.join(
         {description = "focus next by index", group = "client"}
     ),
     awful.key({ modkey,           }, "k",
+        function ()
+            awful.client.focus.byidx(-1)
+        end,
+        {description = "focus previous by index", group = "client"}
+    ),
+    awful.key({ modkey,           }, "Down",
+        function ()
+            awful.client.focus.byidx( 1)
+        end,
+        {description = "focus next by index", group = "client"}
+    ),
+    awful.key({ modkey,           }, "Up",
         function ()
             awful.client.focus.byidx(-1)
         end,
@@ -500,6 +520,7 @@ awful.rules.rules = {
         -- and the name shown there might not match defined rules here.
         name = {
           "Event Tester",  -- xev.
+          "Clevrr Computer",
         },
         role = {
           "AlarmWindow",  -- Thunderbird's calendar.
