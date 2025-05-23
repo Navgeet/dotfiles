@@ -23,7 +23,7 @@ sudo apt install -y termite zoom fonts-inconsolata awesome awsome-doc emacs nvid
 
 # set fish as default shell
 echo /usr/bin/fish | sudo tee -a /etc/shells
-chsh -s /usr/bin/fish
+sudo chsh -s /usr/bin/fish nav
 
 
 DOTFILES=$(cd $1 | pwd)
