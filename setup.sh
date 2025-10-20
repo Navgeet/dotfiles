@@ -16,7 +16,7 @@ curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo 
 echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
 
 sudo apt update
-sudo apt install -y alacritty awesome awsome-doc emacs rofi htop fish spotify-client blueman network-manager-applet
+sudo apt install -y alacritty awesome awsome-doc emacs rofi htop fish spotify-client blueman network-manager-applet keepassxc
 
 # set fish as default shell
 echo /usr/bin/fish | sudo tee -a /etc/shells
