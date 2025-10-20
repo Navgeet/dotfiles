@@ -558,6 +558,11 @@ awful.rules.rules = {
 }
 -- }}}
 
+-- {{{ Autostart applications
+awful.spawn.with_shell("pgrep -u $USER -x nm-applet > /dev/null || nm-applet &")
+awful.spawn.with_shell("pgrep -u $USER -x blueman-applet > /dev/null || blueman-applet &")
+-- }}}
+
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function (c)
