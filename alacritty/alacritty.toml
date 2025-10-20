@@ -1,0 +1,6 @@
+[colors.primary]
+background = "#1e1e1e"
+foreground = "#c5c8c6"
+
+[font]
+size = 8.0

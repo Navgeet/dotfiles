@@ -22,6 +22,9 @@ require("awful.hotkeys_popup.keys")
 local debian = require("debian.menu")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
 
+-- Load battery widget
+local battery_widget = require("awesome-wm-widgets.batteryarc-widget.batteryarc")
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -66,8 +69,8 @@ modkey = "Mod4"
 -- Table of layouts to cover with awful.layout.inc, order matters.
 awful.layout.layouts = {
     -- awful.layout.suit.floating,
-    awful.layout.suit.tile,
     awful.layout.suit.max,
+    awful.layout.suit.tile,
     awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
     awful.layout.suit.tile.top,
@@ -121,7 +124,7 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- }}}
 
 -- Keyboard map indicator and switcher
-mykeyboardlayout = awful.widget.keyboardlayout()
+-- mykeyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
 -- Create a textclock widget
@@ -184,14 +187,17 @@ screen.connect_signal("property::geometry", set_wallpaper)
 
 awful.screen.connect_for_each_screen(function(s)
 
--- padding for oled screen pixel shifting
-s.padding = { top = "10", bottom = "0", right = "10", left = "10" }
 
     -- Wallpaper
     set_wallpaper(s)
 
     -- Each screen has its own tag table.
+    -- Tags 1 and 2 default to max layout, tags 3 and 4 default to tile
     awful.tag({ "1", "2", "3", "4" }, s, awful.layout.layouts[1])
+    s.tags[1].layout = awful.layout.suit.max
+    s.tags[2].layout = awful.layout.suit.max
+    s.tags[3].layout = awful.layout.suit.tile
+    s.tags[4].layout = awful.layout.suit.tile
 
     -- Create an imagebox widget which will contain an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
@@ -230,8 +236,9 @@ s.padding = { top = "10", bottom = "0", right = "10", left = "10" }
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
+            -- mykeyboardlayout,
             wibox.widget.systray(),
+            battery_widget(),
             mytextclock,
             s.mylayoutbox,
         },
@@ -270,6 +277,19 @@ globalkeys = gears.table.join(
         end,
         {description = "focus previous by index", group = "client"}
     ),
+    awful.key({ modkey,           }, "Up",
+        function ()
+            awful.client.focus.byidx( 1)
+        end,
+        {description = "focus next by index", group = "client"}
+    ),
+    awful.key({ modkey,           }, "Down",
+        function ()
+            awful.client.focus.byidx(-1)
+        end,
+        {description = "focus previous by index", group = "client"}
+    ),
+
     awful.key({ modkey,           }, "w", function () mymainmenu:show() end,
               {description = "show main menu", group = "awesome"}),
 
@@ -346,7 +366,13 @@ globalkeys = gears.table.join(
               {description = "lua execute prompt", group = "awesome"}),
     -- Menubar
     awful.key({ modkey }, "p", function() menubar.show() end,
-              {description = "show the menubar", group = "launcher"})
+              {description = "show the menubar", group = "launcher"}),
+
+    -- Brightness control
+    awful.key({ }, "XF86MonBrightnessUp", function() awful.spawn("brightnessctl set +10%") end,
+              {description = "increase brightness", group = "hotkeys"}),
+    awful.key({ }, "XF86MonBrightnessDown", function() awful.spawn("brightnessctl set 10%-") end,
+              {description = "decrease brightness", group = "hotkeys"})
 )
 
 clientkeys = gears.table.join(

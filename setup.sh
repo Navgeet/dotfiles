@@ -10,16 +10,13 @@ then
     exit 1
 fi
 
-sudo echo "nav   ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+sudo echo "nav   ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/nav
 
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4773BD5E130D1D45 # spotify
-echo deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list
-
+curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
+echo "deb https://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
 
 sudo apt update
-sudo apt install -y termite zoom fonts-inconsolata awesome awsome-doc emacs nvidia-driver \
-    suckless-tools htop firefox-est firefox-esr-l10n-hi-in fish spotify-client xbindkeys
-
+sudo apt install -y alacritty awesome awsome-doc emacs rofi htop fish spotify-client blueman network-manager-applet
 
 # set fish as default shell
 echo /usr/bin/fish | sudo tee -a /etc/shells
