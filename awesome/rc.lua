@@ -25,6 +25,9 @@ local has_fdo, freedesktop = pcall(require, "freedesktop")
 -- Load battery widget
 local battery_widget = require("awesome-wm-widgets.batteryarc-widget.batteryarc")
 
+-- Load volume widget
+local volume_widget = require("awesome-wm-widgets.volume-widget.volume")
+
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -238,6 +241,13 @@ awful.screen.connect_for_each_screen(function(s)
             layout = wibox.layout.fixed.horizontal,
             -- mykeyboardlayout,
             wibox.widget.systray(),
+            {
+                volume_widget({
+                    widget_type = 'arc'
+                }),
+                right = 5,
+                widget = wibox.container.margin
+            },
             battery_widget(),
             mytextclock,
             s.mylayoutbox,
@@ -372,7 +382,15 @@ globalkeys = gears.table.join(
     awful.key({ }, "XF86MonBrightnessUp", function() awful.spawn("brightnessctl set +10%") end,
               {description = "increase brightness", group = "hotkeys"}),
     awful.key({ }, "XF86MonBrightnessDown", function() awful.spawn("brightnessctl set 10%-") end,
-              {description = "decrease brightness", group = "hotkeys"})
+              {description = "decrease brightness", group = "hotkeys"}),
+
+    -- Volume control
+    awful.key({ }, "XF86AudioRaiseVolume", function() volume_widget:inc(5) end,
+              {description = "increase volume", group = "hotkeys"}),
+    awful.key({ }, "XF86AudioLowerVolume", function() volume_widget:dec(5) end,
+              {description = "decrease volume", group = "hotkeys"}),
+    awful.key({ }, "XF86AudioMute", function() volume_widget:toggle() end,
+              {description = "toggle mute", group = "hotkeys"})
 )
 
 clientkeys = gears.table.join(
