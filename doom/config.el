@@ -76,3 +76,4 @@
 ;; they are implemented.
 
 (windmove-default-keybindings)
+(setq confirm-kill-emacs nil)

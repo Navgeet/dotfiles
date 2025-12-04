@@ -243,7 +243,8 @@ awful.screen.connect_for_each_screen(function(s)
             wibox.widget.systray(),
             {
                 volume_widget({
-                    widget_type = 'arc'
+                    widget_type = 'arc',
+                    device = 'default'
                 }),
                 right = 5,
                 widget = wibox.container.margin
